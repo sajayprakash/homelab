@@ -10,12 +10,10 @@ services:
       - PUID=1000
       - PGID=1000
       - TZ=Asia/Kolkata
-      - NVIDIA_VISIBLE_DEVICES=all
     ports:
       - 80:80
       - 443:443
     restart: unless-stopped
-    runtime: nvidia
 
   jellyfin:
     image: lscr.io/linuxserver/jellyfin:latest
