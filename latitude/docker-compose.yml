@@ -1,22 +1,20 @@
----
 services:
   heimdall:
-    image: linuxserver/heimdall
-    container_name: heimdall
-    volumes:
-      - /home/s/docker/heimdall/config:/config
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Asia/Kolkata
-    ports:
-      - 80:80
-      - 443:443
-    restart: unless-stopped
-
+      image: linuxserver/heimdall
+      container_name: heimdall
+      volumes:
+        - /docker/appdata/heimdall/:/config
+      environment:
+        - PUID=1000
+        - PGID=1000
+        - TZ=Asia/Kolkata
+      ports:
+        - 80:80
+        - 443:443
+      restart: unless-stopped
   jellyfin:
-    image: lscr.io/linuxserver/jellyfin:latest
     container_name: jellyfin
+    image: lscr.io/linuxserver/jellyfin:latest
     environment:
       - PUID=1000
       - PGID=1000
@@ -24,13 +22,23 @@ services:
     devices:
       - "/dev/dri/renderD128:/dev/dri/renderD128"
     volumes:
-      - /home/s/docker/jellyfin/config:/config
-      - /home/s/docker/jellyfin/cache:/cache
-      - /home/s/media/:/media
+      - /docker/appdata/jellyfin/config:/config
+      - /docker/appdata/jellyfin/cache:/cache
+      - /data/media:/media
     ports:
       - 8096:8096
     restart: unless-stopped
-
+  jellyseerr:
+    container_name: jellyseerr
+    image: fallenbagel/jellyseerr:latest
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=Asia/Kolkata
+    ports:
+      - 5055:5055
+    volumes:
+      - /docker/appdata/jellyseerr:/app/config
   qbittorrent:
     image: lscr.io/linuxserver/qbittorrent:latest
     container_name: qbittorrent
@@ -40,67 +48,54 @@ services:
       - TZ=Asia/Kolkata
       - WEBUI_PORT=8080
     volumes:
-      - /home/s/docker/qbittorrent/config:/config
-      - /home/s/docker/downloads:/downloads
-      - /home/s/media:/media
+      - /docker/appdata/qbittorrent/config:/config
+      - /docker/appdata/downloads:/downloads
+      - /data/torrents/:/data/torrents
     ports:
       - 8080:8080
       - 6881:6881
       - 6881:6881/udp
     restart: unless-stopped
-
-  prowlarr:
-    image: lscr.io/linuxserver/prowlarr:latest
-    container_name: prowlarr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Asia/Kolkata
-    volumes:
-      - /home/s/docker/prowlarr/config:/config
-    ports:
-      - 9696:9696
-    restart: unless-stopped
-
-  sonarr:
-    image: lscr.io/linuxserver/sonarr:latest
-    container_name: sonarr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Asia/Kolkata
-    volumes:
-      - /home/s/docker/sonarr/config:/config
-      - /home/s/media/tvshows:/tv
-      - /home/s/media/anime:/anime
-      - /home/s/docker/downloads:/downloads
-    ports:
-      - 8989:8989
-    restart: unless-stopped
-
   radarr:
-    image: lscr.io/linuxserver/radarr:latest
     container_name: radarr
-    environment:
-      - PUID=1000
-      - PGID=1000
-      - TZ=Asia/Kolkata
-    volumes:
-      - /home/s/docker/radarr/config:/config
-      - /home/s/media/movies:/movies
-      - /home/s/docker/downloads:/downloads
+    image: lscr.io/linuxserver/radarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
     ports:
       - 7878:7878
-    restart: unless-stopped
-
-  jellyseerr:
-    image: fallenbagel/jellyseerr:latest
-    container_name: jellyseerr
     environment:
-      - LOG_LEVEL=debug
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+    volumes:
+      - /docker/appdata/radarr:/config
+      - /data:/data
+  sonarr:
+    container_name: sonarr
+    image: lscr.io/linuxserver/sonarr:latest
+    restart: unless-stopped
+    logging:
+      driver: json-file
+    ports:
+      - 8989:8989
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+    volumes:
+      - /docker/appdata/sonarr:/config
+      - /data:/data
+  prowlarr:
+    container_name: prowlarr
+    image: lscr.io/linuxserver/prowlarr:latest
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
       - TZ=Asia/Kolkata
     ports:
-      - 5055:5055
+      - 9696:9696
     volumes:
-      - /home/s/docker/jellyseerr/config:/app/config
-    restart: unless-stopped
+      - /docker/appdata/prowlarr:/config
+      - /data:/data
