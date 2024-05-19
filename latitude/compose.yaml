@@ -1,0 +1,129 @@
+services:
+  homepage:
+    container_name: homepage
+    image: ghcr.io/gethomepage/homepage:latest
+    restart: unless-stopped
+    environment:
+      PUID: 1000
+      PGID: 1000
+      HOMEPAGE_VAR_PIHOLE_API_KEY: $HOMEPAGE_VAR_PIHOLE_API_KEY
+      HOMEPAGE_VAR_JELLYFIN_API_KEY: $HOMEPAGE_VAR_JELLYFIN_API_KEY
+      HOMEPAGE_VAR_JELLYSEERR_API_KEY: $HOMEPAGE_VAR_JELLYSEERR_API_KEY
+      HOMEPAGE_VAR_SONARR_API_KEY: $HOMEPAGE_VAR_SONARR_API_KEY
+      HOMEPAGE_VAR_RADARR_API_KEY: $HOMEPAGE_VAR_RADARR_API_KEY
+      HOMEPAGE_VAR_PROWLARR_API_KEY: $HOMEPAGE_VAR_PROWLARR_API_KEY
+      HOMEPAGE_VAR_QBITTORRENT_USERNAME: $HOMEPAGE_VAR_QBITTORRENT_USERNAME
+      HOMEPAGE_VAR_QBITTORRENT_PASSWORD: $HOMEPAGE_VAR_QBITTORRENT_PASSWORD
+    ports:
+      - 80:3000
+    volumes:
+      - /docker/appdata/homepage/:/app/config
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    restart: unless-stopped
+    environment:
+      TZ: Asia/Kolkata
+    ports:
+      - 53:53/tcp
+      - 53:53/udp
+      - 67:67/udp
+      - 8000:80/tcp
+    volumes:
+      - /docker/appdata/pihole/etc:/etc/pihole
+      - /docker/appdata/pihole/dnsmasq.d:/etc/dnsmasq.d
+    cap_add:
+      - NET_ADMIN
+  jellyfin:
+    container_name: jellyfin
+    image: lscr.io/linuxserver/jellyfin:latest
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+    ports:
+      - 8096:8096
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+    volumes:
+      - /docker/appdata/jellyfin:/config
+      - /data/media/:/data/
+  jellyseerr:
+    image: fallenbagel/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      - LOG_LEVEL=debug
+      - TZ=Asia/Kolkata
+    ports:
+      - 5055:5055
+    volumes:
+      - /docker/appdata/jellyseerr:/app/config
+    restart: unless-stopped
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+      - WEBUI_PORT=8080
+      - TORRENTING_PORT=6881
+    volumes:
+      - /docker/appdata/qbittorrent:/config
+      - /data/torrents:/data/torrents
+    ports:
+      - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
+    restart: unless-stopped
+  flaresolverr:
+    container_name: flaresolverr
+    image: ghcr.io/flaresolverr/flaresolverr:latest
+    restart: unless-stopped
+    environment:
+      - LOG_LEVEL=${LOG_LEVEL:-info}
+      - LOG_HTML=${LOG_HTML:-false}
+      - CAPTCHA_SOLVER=${CAPTCHA_SOLVER:-none}
+      - TZ=Asia/Kolkata
+    ports:
+      - ${PORT:-8191}:8191
+  sonarr:
+    container_name: sonarr
+    image: lscr.io/linuxserver/sonarr:latest
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+    ports:
+      - 8989:8989
+    volumes:
+      - /docker/appdata/sonarr:/config
+      - /data/:/data
+  radarr:
+    container_name: radarr
+    image: lscr.io/linuxserver/radarr:latest
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+    ports:
+      - 7878:7878
+    volumes:
+      - /docker/appdata/radarr:/config
+      - /data/:/data
+  prowlarr:
+    container_name: prowlarr
+    image: lscr.io/linuxserver/prowlarr:latest
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Kolkata
+    ports:
+      - 9696:9696
+    volumes:
+      - /docker/appdata/prowlarr:/config
