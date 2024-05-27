@@ -1,30 +1,25 @@
 services:
   homepage:
     container_name: homepage
-    image: ghcr.io/gethomepage/homepage:latest
     restart: unless-stopped
-    environment:
-      PUID: 1000
-      PGID: 1000
-      HOMEPAGE_VAR_PIHOLE_API_KEY: $HOMEPAGE_VAR_PIHOLE_API_KEY
-      HOMEPAGE_VAR_JELLYFIN_API_KEY: $HOMEPAGE_VAR_JELLYFIN_API_KEY
-      HOMEPAGE_VAR_JELLYSEERR_API_KEY: $HOMEPAGE_VAR_JELLYSEERR_API_KEY
-      HOMEPAGE_VAR_SONARR_API_KEY: $HOMEPAGE_VAR_SONARR_API_KEY
-      HOMEPAGE_VAR_RADARR_API_KEY: $HOMEPAGE_VAR_RADARR_API_KEY
-      HOMEPAGE_VAR_PROWLARR_API_KEY: $HOMEPAGE_VAR_PROWLARR_API_KEY
-      HOMEPAGE_VAR_QBITTORRENT_USERNAME: $HOMEPAGE_VAR_QBITTORRENT_USERNAME
-      HOMEPAGE_VAR_QBITTORRENT_PASSWORD: $HOMEPAGE_VAR_QBITTORRENT_PASSWORD
+    image: ghcr.io/gethomepage/homepage:latest
     ports:
       - 80:3000
     volumes:
       - /docker/appdata/homepage/:/app/config
       - /var/run/docker.sock:/var/run/docker.sock:ro
+    environment:
+      - PUID:1000
+      - PGID:1000
+      - HOMEPAGE_VAR_PIHOLE_API_KEY=${HOMEPAGE_VAR_PIHOLE_API_KEY}
+      - HOMEPAGE_VAR_JELLYFIN_API_KEY=${HOMEPAGE_VAR_JELLYFIN_API_KEY}
+      - HOMEPAGE_VAR_JELLYSEERR_API_KEY=${HOMEPAGE_VAR_JELLYSEERR_API_KEY}
   pihole:
     container_name: pihole
-    image: pihole/pihole:latest
     restart: unless-stopped
+    image: pihole/pihole:latest
     environment:
-      TZ: Asia/Kolkata
+      - TZ=Asia/Kolkata
     ports:
       - 53:53/tcp
       - 53:53/udp
@@ -127,3 +122,4 @@ services:
       - 9696:9696
     volumes:
       - /docker/appdata/prowlarr:/config
+networks: {}
