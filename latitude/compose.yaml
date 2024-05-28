@@ -122,4 +122,25 @@ services:
       - 9696:9696
     volumes:
       - /docker/appdata/prowlarr:/config
+  kasm:
+    container_name: kasm
+    restart: unless-stopped
+    image: lscr.io/linuxserver/kasm:latest
+    privileged: true
+    environment:
+      - KASM_PORT=3001
+    ports:
+      - 3000:3000
+      - 3001:3001
+    volumes:
+      - /docker/appdata/kasm/opt:/opt
+      - /docker/appdata/kasm/profiles:/profiles
+    devices:
+      - /dev/dri/renderD128:/dev/dri/renderD128
+  watchtower:
+    container_name: watchtower
+    restart: unless-stopped
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 networks: {}
